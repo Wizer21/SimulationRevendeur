@@ -1,6 +1,6 @@
-#include "EspaceDeVente.h"
+﻿#include "EspaceDeVente.h"
 
-EspaceDeVente::EspaceDeVente(QWidget* parent, std::vector<Item>& itemList, Entreprise* entreprise, std::vector<Employe>& listEmployeRef, std::vector<Ville>& villeListRef)
+EspaceDeVente::EspaceDeVente(QWidget* parent, std::vector<Item>& itemList, std::vector<Employe>& listEmployeRef, std::vector<Ville>& villeListRef, double addPoidMax)
   : QDialog(parent)
 {
   pointeurItemList = &itemList;
@@ -11,10 +11,10 @@ EspaceDeVente::EspaceDeVente(QWidget* parent, std::vector<Item>& itemList, Entre
   poidMax = 0;
   poidActuel = 0;
   francoPort = 0;
+  poidMax = addPoidMax;
 
   QGridLayout* mainLayout = new QGridLayout(this);
   ini(mainLayout);
-  iniMaxForce();
 }
 
 void EspaceDeVente::ini(QGridLayout* mainLayout)
@@ -29,7 +29,7 @@ void EspaceDeVente::ini(QGridLayout* mainLayout)
   QGridLayout* layoutInArea = new QGridLayout(this);
 
   QLabel* forceRestante = new QLabel("Main d'oeuvre disponible:", this);
-  displayForce = new QLineEdit(this);
+  displayForce = new QLineEdit(QString::number(poidMax), (this));
   forceBar = new QProgressBar(this);
 
   tropLourd = new QLabel("Main d'oeuvre insuffisante!", this);
@@ -50,6 +50,7 @@ void EspaceDeVente::ini(QGridLayout* mainLayout)
   tropLourd->setVisible(false);
   forceBar->setStyleSheet("QProgressBar {qproperty-alignment: AlignCenter;}");
   forceBar->setValue(0);
+  forceBar->setRange(0, poidMax);
   scrollArea->setWidgetResizable(true);
   iniItemList(layoutInArea);
 
@@ -62,13 +63,13 @@ void EspaceDeVente::ini(QGridLayout* mainLayout)
 
   iniVille(layoutGauche);
 
-  QGroupBox* estimations = new QGroupBox("Estimations", this);
+  QGroupBox* estimations = new QGroupBox(tr("Estimations"), this);
   QGridLayout* boxLayout = new QGridLayout(this);
-  QLabel* fraisEnvoir = new QLabel("Frais d'Envoi", this);
+  QLabel* fraisEnvoir = new QLabel(tr("Frais d'Envoi"), this);
   displayFrais = new QLineEdit("0", this);
-  QLabel* gainEstime = new QLabel("Montant des Ventes", this);
+  QLabel* gainEstime = new QLabel(tr("Montant des Ventes"), this);
   displayGain = new QLineEdit("0", this);
-  QPushButton* venteFinished = new QPushButton("Valider", this);
+  QPushButton* venteFinished = new QPushButton(tr("Valider"), this);
 
   layoutGauche->addWidget(estimations);
   estimations->setLayout(boxLayout);
@@ -99,7 +100,7 @@ void EspaceDeVente::iniItemList(QGridLayout* layoutArea)
     QLabel* itemName = new QLabel(pointeurItemList->at(i).getNom(), this);
     QLineEdit* stockDynamic = new QLineEdit(QString::number(pointeurItemList->at(i).getStock()), this);
     QSlider* slider = new QSlider(Qt::Horizontal, this);
-    QLabel* gainEstime = new QLabel("Gain Estime", this);
+    QLabel* gainEstime = new QLabel(tr("Gain Estime"), this);
     QLineEdit* displayGainEstime = new QLineEdit(this);
 
     layoutArea->addWidget(widgetItem, x, y++);
@@ -161,17 +162,6 @@ void EspaceDeVente::iniVille(QGridLayout* layoutArea)
   }
 }
 
-void EspaceDeVente::iniMaxForce()
-{
-  poidMax = 0;
-  for (int i = 0; i < listEmploye->size(); i++)
-  {
-    poidMax += listEmploye->at(i).getForce();
-  }
-  displayForce->setText(QString::number(poidMax));
-  forceBar->setMaximum(poidMax);
-}
-
 void EspaceDeVente::sliderDragged(int value)
 {
   QLineEdit* pointeurLineEdit = this->findChild<QLineEdit*>(sender()->objectName());
@@ -198,7 +188,7 @@ void EspaceDeVente::calculForceEtPrixMax()
     estimationPrixFinal += listeTemporaire.at(i).getPvTotal();
     QLineEdit* gainItem = this->findChild<QLineEdit*>(QString::number(i) + "a");
     gainItem->setText(QString::number(listeTemporaire.at(i).getPvTotal()));
-    // force utilis�e
+    // force utilisée
     poidActuel += listeTemporaire.at(i).getPoid();
   }
   // Display Force/Gain setProgressBar
@@ -239,13 +229,15 @@ void EspaceDeVente::validButton()
   }
 
   int checkedBox = groupCheckBox->checkedId();
-  double newBanque = (estimationPrixFinal * pointeurVille->at(checkedBox).getMultiplicateurGain()) - ((francoPort * poidActuel) * pointeurVille->at(checkedBox).getFraisMultiplicateur());
+  double fraisPort = ((francoPort * poidActuel) * pointeurVille->at(checkedBox).getFraisMultiplicateur());
+  double newBanque = (estimationPrixFinal * pointeurVille->at(checkedBox).getMultiplicateurGain()) - fraisPort;
 
   for (int i = 0; i < pointeurItemList->size(); i++)
   {
     pointeurItemList->at(i).setStock(pointeurItemList->at(i).getStock() - listeTemporaire.at(i).getQuantiteVendue());
   }
 
+  emit transfertsSalaireEtGain(newBanque, fraisPort);
   emit localNewBanque(newBanque);
   this->close();
 }

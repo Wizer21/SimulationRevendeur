@@ -26,6 +26,7 @@ class SimulationRevendeur : public QMainWindow
 
 public:
   SimulationRevendeur(QWidget* parent = Q_NULLPTR);
+  void setEntreprise(Entreprise& entrepriseGet);
 
 public slots:
   void newAchat();
@@ -34,30 +35,34 @@ public slots:
   void show3DGraph();
   void setNewBanque(double value);
   void setDial(int value);
+  void receiveNewEntreprise(QString);
+  void applyNewSale(double marge, double fraisport);
 
 private:
+  void iniInterface();
   void ini(QGridLayout* mainLayout);
   void iniDefaultList();
   void iniMenuBar(QMenuBar* barPointeur);
   bool checkID(int idTest);
-  QChartView* ini2DEmploye();
   QChartView* ini2DEntreprise();
   void calculForce_SalaireMax();
   void updateList(QTableWidget* pointeurTable);
   void updateEmptrepriseValue();
   void addNews();
+  void adjustGraph(int oldValue, int newValue);
+  void setDefaultGraphValue();
 
   int idSet;
   int mois;
   int totalForce;
   int totalSalaire;
-  int totalSalaireDial;
+  int salaireOldPos;
   int posX;
   double maxBanque;
   QChartView* employeGraph;
   QChartView* entrepriseGraph;
   QLCDNumber* banque;
-  Entreprise* pointeurEntreprise;
+  Entreprise pointeurEntreprise;
   QTableWidget* view;
   QChart* chartBank;
 
@@ -68,8 +73,10 @@ private:
   QLineSeries* lineBanque;
   QLineSeries* lineSalaire;
 
+  QDial* forceHorraire;
   QLineEdit* displayForce;
   QLineEdit* displayNbrEmploye;
+  QVBoxLayout* layoutNewsEntreprise;
   QVBoxLayout* layoutNews;
 
   std::vector<Ville> villeList;

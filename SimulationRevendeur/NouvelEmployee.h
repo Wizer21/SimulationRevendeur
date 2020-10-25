@@ -19,6 +19,9 @@ public slots:
   void setReponse(QString);
   void pushSelectedEmploye();
 
+signals:
+  void sendEmploye(QString line);
+
 private:
   bool reponsePlayer;
   int setId;
@@ -28,6 +31,8 @@ private:
   void setLocalId();
   void ini(QGridLayout* layoutPointeur);
   void iniEmployeList(QVBoxLayout* layoutPointeur);
+  void newsNewEmploye(QString nom);
+  void fireEmploye(QString nom);
 
   std::vector<Employe> newEmploye;
   std::vector<Employe>* pointeurEmployeList;

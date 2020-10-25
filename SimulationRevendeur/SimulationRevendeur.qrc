@@ -1,4 +1,7 @@
 <RCC>
-    <qresource prefix="SimulationRevendeur">
+    <qresource prefix="/SimulationRevendeur"/>
+    <qresource prefix="/translations">
+        <file>simulationrevendeur_en.qm</file>
+        <file>simulationrevendeur_fr.qm</file>
     </qresource>
 </RCC>

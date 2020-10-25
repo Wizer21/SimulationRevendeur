@@ -29,7 +29,7 @@ void NouvelEmployee::ini(QGridLayout* layoutPointeur)
   //Gauche
   QWidget* mainWidgetDroit = new QWidget(this);
   QVBoxLayout* layoutGauche = new QVBoxLayout(this);
-  QLabel* titre = new QLabel("Gestion employes", this);
+  QLabel* titre = new QLabel(tr("Gestion employes"), this);
   QScrollArea* scrollArea = new QScrollArea(this);
   QWidget* widgetArea = new QWidget(this);
   QVBoxLayout* layoutArea = new QVBoxLayout(this);
@@ -48,7 +48,7 @@ void NouvelEmployee::ini(QGridLayout* layoutPointeur)
   //Droite
   QWidget* mainWidgetGauche = new QWidget(this);
   QVBoxLayout* layoutDroit = new QVBoxLayout(this);
-  QPushButton* engagerButton = new QPushButton("Engager !", this);
+  QPushButton* engagerButton = new QPushButton(tr("Engager !"), this);
 
   layoutPointeur->addWidget(mainWidgetGauche, 0, 1);
   mainWidgetGauche->setLayout(layoutDroit);
@@ -63,8 +63,8 @@ void NouvelEmployee::ini(QGridLayout* layoutPointeur)
     QCheckBox* newBox = new QCheckBox(this);
     QLabel* newName = new QLabel(newEmploye.at(i).getNom(), this);
 
-    QLabel* newSalaireLabel = new QLabel("Salaire:", this);
-    QLabel* newForceLabel = new QLabel("Force:", this);
+    QLabel* newSalaireLabel = new QLabel(tr("Salaire:"), this);
+    QLabel* newForceLabel = new QLabel(tr("Force:"), this);
     QLineEdit* newSalaire = new QLineEdit(QString::number(newEmploye.at(i).getSalaire()), this);
     QLineEdit* newForce = new QLineEdit(QString::number(newEmploye.at(i).getForce()), this);
 
@@ -94,11 +94,11 @@ void NouvelEmployee::iniEmployeList(QVBoxLayout* layoutPointeur)
     QWidget* widgetList = new QWidget(this);
     QGridLayout* layoutEmploye = new QGridLayout(this);
     QLabel* nom = new QLabel(pointeurEmployeList->at(i).getNom(), this);
-    QLabel* salaireLabel = new QLabel("Salaire:", this);
-    QLabel* forceLabel = new QLabel("Force:", this);
+    QLabel* salaireLabel = new QLabel(tr("Salaire:"), this);
+    QLabel* forceLabel = new QLabel(tr("Force:"), this);
     QLineEdit* salaire = new QLineEdit(QString::number(pointeurEmployeList->at(i).getSalaire()), this);
     QLineEdit* force = new QLineEdit(QString::number(pointeurEmployeList->at(i).getForce()), this);
-    QPushButton* virer = new QPushButton("virer", this);
+    QPushButton* virer = new QPushButton(tr("Virer"), this);
 
     widgetList->setObjectName(QString::number(pointeurEmployeList->at(i).getId()));
     virer->setObjectName(QString::number(pointeurEmployeList->at(i).getId()));
@@ -137,6 +137,7 @@ void NouvelEmployee::virerEmploye()
 
   if (reponsePlayer)
   {
+    fireEmploye(pointeurEmployeList->at(i).getNom());
     pointeurEmployeList->erase(pointeurEmployeList->begin() + i);
     QWidget* widgetADelete = this->findChild<QWidget*>(QString::number(idSender));
     delete widgetADelete;
@@ -145,13 +146,13 @@ void NouvelEmployee::virerEmploye()
 
 void NouvelEmployee::pushSelectedEmploye()
 {
-
   for (int i = 0; i < 3; i++)
   {
     QCheckBox* box = this->findChild<QCheckBox*>(QString::number(i));
     if (box->isChecked())
     {
       pointeurEmployeList->push_back(newEmploye.at(i));
+      newsNewEmploye(newEmploye.at(i).getNom());
     }
   }
   this->close();
@@ -165,6 +166,16 @@ void NouvelEmployee::setReponse(QString reponse)
     return;
   }
   reponsePlayer = false;
+}
+
+void NouvelEmployee::newsNewEmploye(QString nom)
+{
+  emit sendEmploye(nom + tr(" nous a rejoint!"));
+}
+
+void NouvelEmployee::fireEmploye(QString nom)
+{
+  emit sendEmploye(nom + tr(" nous quitte aujourd'hui, ce n'etait pas le meilleur."));
 }
 
 NouvelEmployee::~NouvelEmployee()

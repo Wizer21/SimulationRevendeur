@@ -9,8 +9,8 @@ AcceptFire::AcceptFire(QWidget* parent, QString nom, int salaire)
 
 void AcceptFire::ini(QVBoxLayout* layoutPointeur, QString nom, int salaire)
 {
-  QLabel* titre = new QLabel("Voulez vous virer " + nom + " ?", this);
-  QLabel* question = new QLabel("Cela vous coutera " + QString::number(salaire / 2) + " .", this);
+  QLabel* titre = new QLabel(tr("Voulez vous virer ") + nom + " ?", this);
+  QLabel* question = new QLabel(tr("Cela vous coutera ") + QString::number(salaire / 2) + " .", this);
   QGridLayout* gridlayout = new QGridLayout(this);
   QPushButton* oui = new QPushButton("Oui", this);
   QPushButton* non = new QPushButton("Non", this);

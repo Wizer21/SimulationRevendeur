@@ -22,6 +22,11 @@
       <Extensions>qrc;*</Extensions>
       <ParseFiles>false</ParseFiles>
     </Filter>
+    <Filter Include="Translation Files">
+      <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
+      <Extensions>ts</Extensions>
+      <ParseFiles>false</ParseFiles>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="SimulationRevendeur.qrc">
@@ -77,6 +82,9 @@
     <ClCompile Include="Ville.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IniApp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Item.h">
@@ -92,6 +100,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ville.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Translate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -111,5 +122,16 @@
     <QtMoc Include="EspaceDeVente.h">
       <Filter>Header Files</Filter>
     </QtMoc>
+    <QtMoc Include="IniApp.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="simulationrevendeur_fr.ts">
+      <Filter>Translation Files</Filter>
+    </None>
+    <None Include="simulationrevendeur_en.ts">
+      <Filter>Translation Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

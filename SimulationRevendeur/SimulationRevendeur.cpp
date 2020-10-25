@@ -5,30 +5,40 @@ SimulationRevendeur::SimulationRevendeur(QWidget* parent)
   : QMainWindow(parent)
 {
   ui.setupUi(this);
+  //this->setStyleSheet("background-color:#404040;");
+}
 
+void SimulationRevendeur::setEntreprise(Entreprise& entrepriseGet)
+{
+  pointeurEntreprise = entrepriseGet;
+  iniInterface();
+}
+
+void SimulationRevendeur::iniInterface()
+{
   srand(time(NULL));
   idSet = 1;
   mois = 0;
   totalForce = 0;
   totalSalaire = 0;
-  totalSalaireDial = 0;
+  salaireOldPos = 0;
   posX = 0;
   maxBanque = 0;
-  pointeurEntreprise = new Entreprise();
-  pointeurEntreprise->setBanque(15320);
 
   QMenuBar* menuBar = new QMenuBar(this);
   this->setMenuBar(menuBar);
   iniMenuBar(menuBar);
   QGridLayout* mainGrid = new QGridLayout(this->ui.centralWidget);
+
   iniDefaultList();
   ini(mainGrid);
+  setDefaultGraphValue();
 }
 
 void SimulationRevendeur::iniMenuBar(QMenuBar* barPointeur)
 {
-  QMenu* visualizer = new QMenu("Viewer", this);
-  QAction* open3d = new QAction("Open 3D Bank", this);
+  QMenu* visualizer = new QMenu(tr("Visualiseur"), this);
+  QAction* open3d = new QAction(tr("Ouvrir Visualiseur 3D"), this);
 
   barPointeur->addMenu(visualizer);
   visualizer->addAction(open3d);
@@ -41,33 +51,56 @@ void SimulationRevendeur::ini(QGridLayout* mainLayout)
   //1 Gauche
   QWidget* widgetZone1 = new QWidget(this);
   QGridLayout* layoutMainPartie1 = new QGridLayout(this);
-  QLabel* titre = new QLabel("StonksSimulator", this);
-  QPushButton* newMounth = new QPushButton("Achat", this);
+  QLabel* titre = new QLabel(pointeurEntreprise.getName(), this);
+  QPushButton* newMounth = new QPushButton(tr("Achat"), this);
+
+  //Tab
+  QTabWidget* tabNews = new QTabWidget(this);
+
   QScrollArea* scrollNews = new QScrollArea(this);
   QWidget* newWidget = new QWidget(this);
   layoutNews = new QVBoxLayout(this);
 
+  QScrollArea* scrollEntreprise = new QScrollArea(this);
+  QWidget* widgetEntreprise = new QWidget(this);
+  layoutNewsEntreprise = new QVBoxLayout(this);
+
+  //Tableau
   QWidget* widgetTableau = new QWidget(this);
   QHBoxLayout* layoutTableau = new QHBoxLayout(this);
-
   view = new QTableWidget(5, 2, this);
   QStringList headersList;
+
+  tabNews->addTab(scrollNews, tr("Nouveautés Mondiales"));
+  tabNews->addTab(scrollEntreprise, tr("Entreprise"));
 
   mainLayout->addWidget(widgetZone1, 0, 0);
   widgetZone1->setLayout(layoutMainPartie1);
   layoutMainPartie1->addWidget(titre, 0, 0);
   layoutMainPartie1->addWidget(newMounth, 1, 0);
-  layoutMainPartie1->addWidget(scrollNews, 0, 1, 2, 1);
+  layoutMainPartie1->addWidget(tabNews, 0, 1, 2, 1);
+
+  // Tab
   scrollNews->setWidget(newWidget);
   newWidget->setLayout(layoutNews);
+  scrollEntreprise->setWidget(widgetEntreprise);
+  widgetEntreprise->setLayout(layoutNewsEntreprise);
+
   layoutMainPartie1->addWidget(widgetTableau, 2, 0, 2, 2);
 
-  headersList << "Nom"
-              << "Stock";
+  headersList << tr("Nom")
+              << tr("Stock");
+
+  titre->setFont(QFont("", 50));
 
   layoutNews->setAlignment(Qt::AlignTop);
   layoutNews->setContentsMargins(5, 0, 0, 0);
   scrollNews->setWidgetResizable(true);
+  layoutNewsEntreprise->setAlignment(Qt::AlignTop);
+  layoutNewsEntreprise->setContentsMargins(5, 0, 0, 0);
+  scrollEntreprise->setWidgetResizable(true);
+
+  view->setMinimumWidth(this->width() * 0.6);
   view->setHorizontalHeaderLabels(headersList);
 
   widgetTableau->setLayout(layoutTableau);
@@ -78,15 +111,15 @@ void SimulationRevendeur::ini(QGridLayout* mainLayout)
   //2 Droite
   QWidget* widgetZone2 = new QWidget(this);
   QGridLayout* layoutMainPartie2 = new QGridLayout(this);
-  QLabel* nbrEmploye = new QLabel("Nombre d'Employee", this);
+  QLabel* nbrEmploye = new QLabel(tr("Nombre d'Employee"), this);
   displayNbrEmploye = new QLineEdit("2", this);
-  QPushButton* manageEmploye = new QPushButton("Manage Employe", this);
-  QPushButton* vente = new QPushButton("Vendre", this);
+  QPushButton* manageEmploye = new QPushButton(tr("Gestionnaire Employe"), this);
+  QPushButton* vente = new QPushButton(tr("Vendre"), this);
   banque = new QLCDNumber(this);
 
-  QDial* forceHorraire = new QDial(this);
-  QLabel* chargeDesEmploye = new QLabel("Charge Employee", this);
-  displayForce = new QLineEdit(this);
+  forceHorraire = new QDial(this);
+  QLabel* chargeDesEmploye = new QLabel(tr("Charge Employee"), this);
+  displayForce = new QLineEdit("100%", this);
 
   mainLayout->addWidget(widgetZone2, 0, 1);
   widgetZone2->setLayout(layoutMainPartie2);
@@ -102,11 +135,14 @@ void SimulationRevendeur::ini(QGridLayout* mainLayout)
 
   layoutMainPartie2->addWidget(ini2DEntreprise(), 4, 0, 4, 4);
 
+  displayForce->setReadOnly(true);
+  forceHorraire->setSliderPosition(100);
   forceHorraire->setNotchesVisible(true);
-  forceHorraire->setRange(0, 100);
+  forceHorraire->setRange(0, 120);
   manageEmploye->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
   vente->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-  banque->display(pointeurEntreprise->getBanque());
+  banque->setMinimumHeight(displayNbrEmploye->height() * 1.2);
+  banque->display(pointeurEntreprise.getBanque());
 
   connect(forceHorraire, SIGNAL(valueChanged(int)), this, SLOT(setDial(int)));
   connect(newMounth, SIGNAL(clicked()), this, SLOT(newAchat()));
@@ -150,13 +186,33 @@ void SimulationRevendeur::iniDefaultList()
   employeList.push_back(employe1);
   employeList.push_back(employe2);
 
-  Ville paris("Paris", 1, 1);
-  Ville londres("Londres", 1, 1);
-  Ville tokyo("Tokyo", 1, 1);
+  Ville paris(tr("Paris"), 1, 1);
+  Ville londres(tr("Londres"), 1, 1);
+  Ville tokyo(tr("Tokyo"), 1, 1);
 
   villeList.push_back(paris);
   villeList.push_back(londres);
   villeList.push_back(tokyo);
+}
+
+void SimulationRevendeur::setDefaultGraphValue()
+{
+  lineBanque->append(mois, 3257);
+  lineSalaire->append(mois++, 1890);
+
+  lineBanque->append(mois, 7200);
+  lineSalaire->append(mois++, 2030);
+
+  lineBanque->append(mois, 4905);
+  lineSalaire->append(mois++, 2924);
+
+  historiqueBanque.push_back(3257);
+  historiqueBanque.push_back(7200);
+  historiqueBanque.push_back(4905);
+
+  calculForce_SalaireMax();
+  updateEmptrepriseValue();
+  addNews();
 }
 
 bool SimulationRevendeur::checkID(int idTest)
@@ -178,8 +234,8 @@ QChartView* SimulationRevendeur::ini2DEntreprise()
   lineBanque = new QLineSeries();
   lineSalaire = new QLineSeries();
 
-  lineBanque->setName("Fond disponibles");
-  lineSalaire->setName("Cumul des salaires");
+  lineBanque->setName(tr("Fond disponibles"));
+  lineSalaire->setName(tr("Cumul des salaires"));
 
   axeVertical = new QValueAxis(this);
   axeHorizontal = new QValueAxis(this);
@@ -200,24 +256,24 @@ QChartView* SimulationRevendeur::ini2DEntreprise()
   lineSalaire->attachAxis(axeHorizontal);
   lineSalaire->attachAxis(axeVertical);
 
-  updateEmptrepriseValue();
+  calculForce_SalaireMax();
 
   return entrepriseGraph;
 }
 
 void SimulationRevendeur::updateEmptrepriseValue()
 {
-  historiqueBanque.push_back(pointeurEntreprise->getBanque());
+  historiqueBanque.push_back(pointeurEntreprise.getBanque());
 
-  lineBanque->append(mois, pointeurEntreprise->getBanque());
-  lineSalaire->append(mois, totalSalaire);
+  lineBanque->append(mois, pointeurEntreprise.getBanque());
+  lineSalaire->append(mois, salaireOldPos);
 
   axeHorizontal->setMax(mois * 1.5);
 
-  if (maxBanque < pointeurEntreprise->getBanque())
+  if (maxBanque < pointeurEntreprise.getBanque())
   {
-    maxBanque = pointeurEntreprise->getBanque();
-    axeVertical->setMax(pointeurEntreprise->getBanque() * 1.2);
+    maxBanque = pointeurEntreprise.getBanque();
+    axeVertical->setMax(pointeurEntreprise.getBanque() * 1.2);
   }
 }
 
@@ -233,49 +289,55 @@ void SimulationRevendeur::calculForce_SalaireMax()
   }
   totalForce = forceTemporaire;
   totalSalaire = salaireTemporaire;
-  totalSalaireDial = salaireTemporaire;
+  salaireOldPos = salaireTemporaire * (forceHorraire->value() * 0.01);
 }
 
 void SimulationRevendeur::manageEmployeClicked()
 {
+
+  int oldSalairemax = salaireOldPos;
+
   NouvelEmployee emloye(this, employeList);
+  connect(&emloye, SIGNAL(sendEmploye(QString)), this, SLOT(receiveNewEntreprise(QString)));
   emloye.exec();
 
   calculForce_SalaireMax();
 
   displayNbrEmploye->setText(QString::number(static_cast<int>(employeList.size())));
+  adjustGraph(oldSalairemax, totalSalaire);
 }
 
 void SimulationRevendeur::newAchat()
 {
   mois++;
-  NouveauMois nouveau(this, itemList, pointeurEntreprise);
+  NouveauMois nouveau(this, itemList, &pointeurEntreprise);
+  connect(&nouveau, SIGNAL(transfertAchats(QString)), this, SLOT(receiveNewEntreprise(QString)));
   nouveau.exec();
   updateList(view);
 
   // Set Banque
-  banque->display(pointeurEntreprise->getBanque());
+  banque->display(pointeurEntreprise.getBanque());
 
   // Set Graph
   calculForce_SalaireMax();
-
   updateEmptrepriseValue();
 }
 
 void SimulationRevendeur::venteClicked()
 {
   mois++;
-  EspaceDeVente* espace = new EspaceDeVente(this, itemList, pointeurEntreprise, employeList, villeList);
+  calculForce_SalaireMax();
+  EspaceDeVente* espace = new EspaceDeVente(this, itemList, employeList, villeList, totalForce);
 
   connect(espace, SIGNAL(localNewBanque(double)), this, SLOT(setNewBanque(double)));
+  connect(espace, SIGNAL(transfertsSalaireEtGain(double, double)), this, SLOT(applyNewSale(double, double)));
   espace->exec();
 
   // Set Banque
-  banque->display(pointeurEntreprise->getBanque());
+  banque->display(pointeurEntreprise.getBanque());
 
   // Set Graph
   calculForce_SalaireMax();
-
   updateEmptrepriseValue();
 
   //News
@@ -299,7 +361,7 @@ void SimulationRevendeur::addNews()
 
 void SimulationRevendeur::setNewBanque(double value)
 {
-  pointeurEntreprise->setBanque(pointeurEntreprise->getBanque() + value - totalSalaire);
+  pointeurEntreprise.setBanque(pointeurEntreprise.getBanque() + value - totalSalaire);
 }
 
 void SimulationRevendeur::show3DGraph()
@@ -311,7 +373,24 @@ void SimulationRevendeur::show3DGraph()
 void SimulationRevendeur::setDial(int value)
 {
   displayForce->setText(QString::number(value) + "%");
+
   int newSalaire = totalSalaire * (value * 0.01);
-  lineSalaire->replace(mois, totalSalaireDial, mois, newSalaire);
-  totalSalaireDial = newSalaire;
+  adjustGraph(salaireOldPos, newSalaire);
+  salaireOldPos = newSalaire;
+}
+
+void SimulationRevendeur::adjustGraph(int oldValue, int newValue)
+{
+  lineSalaire->replace(mois, oldValue, mois, newValue);
+}
+
+void SimulationRevendeur::receiveNewEntreprise(QString line)
+{
+  QLabel* lineEmploye = new QLabel(line, this);
+  layoutNewsEntreprise->addWidget(lineEmploye);
+}
+
+void SimulationRevendeur::applyNewSale(double marge, double fraisport)
+{
+  receiveNewEntreprise(tr("Votre marge est de ") + QString::number(marge) + tr(" euros, apres déduction de ") + QString::number(fraisport) + tr(" euros de frais de ports, et ") + QString::number(totalSalaire) + tr(" euros de salaire."));
 }

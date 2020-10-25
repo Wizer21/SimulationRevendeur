@@ -2,7 +2,7 @@
 
 Entreprise::Entreprise()
 {
-  banque = 15320;
+  banque = 9264;
 }
 
 double Entreprise::getBanque()
@@ -13,4 +13,14 @@ double Entreprise::getBanque()
 void Entreprise::setBanque(double newBanque)
 {
   banque = newBanque;
+}
+
+void Entreprise::setName(QString addName)
+{
+  nom = addName;
+}
+
+QString Entreprise::getName()
+{
+  return nom;
 }

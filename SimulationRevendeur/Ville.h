@@ -1,13 +1,12 @@
 #pragma once
 #include "stdafx.h"
 #include "StaticRandomizer.h"
-#include "stdafx.h"
 
 class Ville
 {
 
 public:
-  Ville::Ville(QString addNom, double addMultiplicateurGain, double addMultiplicateurFrais);
+  Ville::Ville(const QString& addNom, double addMultiplicateurGain, double addMultiplicateurFrais);
   QString getNom();
   double getMultiplicateurGain();
   double getFraisMultiplicateur();

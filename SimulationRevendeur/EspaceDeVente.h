@@ -13,7 +13,7 @@ class EspaceDeVente : public QDialog
   Q_OBJECT
 
 public:
-  EspaceDeVente(QWidget* parent, std::vector<Item>& itemList, Entreprise* entreprise, std::vector<Employe>& listEmploye, std::vector<Ville>& villeListRef);
+  EspaceDeVente(QWidget* parent, std::vector<Item>& itemList, std::vector<Employe>& listEmploye, std::vector<Ville>& villeListRef, double addPoidMax);
   ~EspaceDeVente();
 
 public slots:
@@ -22,6 +22,7 @@ public slots:
 
 signals:
   void localNewBanque(double value);
+  void transfertsSalaireEtGain(double marge, double fraisPort);
 
 private:
   double estimationPrixFinal;
@@ -44,7 +45,6 @@ private:
   void ini(QGridLayout* mainLayout);
   void iniItemList(QGridLayout* layoutArea);
   void iniVille(QGridLayout* layoutArea);
-  void iniMaxForce();
   void calculForceEtPrixMax();
   void calculFranco();
 };

@@ -18,6 +18,9 @@ public slots:
   void orderPrice(QString);
   void validButtonClicked();
 
+signals:
+  void transfertAchats(QString);
+
 private:
   int setID;
   double coutTotal;

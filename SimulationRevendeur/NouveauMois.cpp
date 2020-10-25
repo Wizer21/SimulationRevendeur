@@ -17,7 +17,7 @@ NouveauMois::NouveauMois(QWidget* parent, std::vector<Item>& getList, Entreprise
 void NouveauMois::ini(QVBoxLayout* mainLayout, std::vector<Item>& getList)
 {
 
-  QLabel* titre = new QLabel("Commande", this);
+  QLabel* titre = new QLabel(tr("Commande"), this);
 
   //Scroll
   QScrollArea* scrollArea = new QScrollArea();
@@ -27,17 +27,17 @@ void NouveauMois::ini(QVBoxLayout* mainLayout, std::vector<Item>& getList)
   //Facture
   QWidget* facturation = new QWidget();
   QGridLayout* layoutFacture = new QGridLayout();
-  QLabel* titreFacture = new QLabel("Facture");
-  QLabel* ancienSolde = new QLabel("Ancien Solde");
+  QLabel* titreFacture = new QLabel(tr("Facture"));
+  QLabel* ancienSolde = new QLabel(tr("Ancien Solde"));
   QLineEdit* displayAncienSolde = new QLineEdit(QString::number(pointeurEntreprise->getBanque()));
-  QLabel* coutTotalLabel = new QLabel("Cout de la commande");
+  QLabel* coutTotalLabel = new QLabel(tr("Cout de la commande"));
   QLineEdit* displayCout = new QLineEdit();
-  QLabel* nouveauSolde = new QLabel("Nouveau Solde");
+  QLabel* nouveauSolde = new QLabel(tr("Nouveau Solde"));
   displayNouveauSolde = new QLineEdit();
 
-  QPushButton* validerBouton = new QPushButton("Valider");
+  QPushButton* validerBouton = new QPushButton(tr("Valider"));
 
-  erreur = new QLabel("Fonds Insuffisants", this);
+  erreur = new QLabel(tr("Fonds Insuffisants"), this);
 
   displayCout->setObjectName("coutCommande");
   displayNouveauSolde->setObjectName("nouvSolde");
@@ -98,8 +98,8 @@ void NouveauMois::iniItemList(QVBoxLayout* mainLayout, std::vector<Item>& getLis
     widgetItem->setLayout(gridLayout);
 
     QLabel* titre = new QLabel(getList.at(i).getNom(), this);
-    QLabel* stock = new QLabel("Stock:", this);
-    QLabel* prixUnitaire = new QLabel("Prix Unitaire", this);
+    QLabel* stock = new QLabel(tr("Stock:"), this);
+    QLabel* prixUnitaire = new QLabel(tr("Prix Unitaire"), this);
     QLineEdit* displayStock = new QLineEdit(QString::number(getList.at(i).getStock()), this);
     QLineEdit* displayPrixUnitaire = new QLineEdit(QString::number(getList.at(i).getPA()), this);
     QLineEdit* displayVenteMensuel = new QLineEdit("vide", this);
@@ -155,7 +155,7 @@ void NouveauMois::setFacturtion()
     coutTotal += pointeurSomme->text().toDouble();
   }
 
-  QLineEdit* coutCommande = this->findChild<QLineEdit*>("coutCommande");
+  QLineEdit* coutCommande = this->findChild<QLineEdit*>(tr("coutCommande"));
   coutCommande->setText("-" + QString::number(coutTotal));
   displayNouveauSolde->setText(QString::number(pointeurEntreprise->getBanque() - coutTotal));
 }
@@ -187,6 +187,8 @@ void NouveauMois::validButtonClicked()
     QLineEdit* coutSlotItem = this->findChild<QLineEdit*>(QString::number(i));
     pointeurList->at(i).setStock(pointeurList->at(i).getStock() + coutSlotItem->text().toInt());
   }
+  emit transfertAchats(tr("Vous avez realiser un achat de ") + QString::number(coutCommande) + tr(" euros de marchandises"));
+
   this->close();
 }
 
