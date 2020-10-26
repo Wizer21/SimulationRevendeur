@@ -85,6 +85,12 @@
     <ClCompile Include="IniApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Options.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SetTheme.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Item.h">
@@ -105,6 +111,9 @@
     <ClInclude Include="Translate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SetTheme.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="NouveauMois.h">
@@ -123,6 +132,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="IniApp.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="Options.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

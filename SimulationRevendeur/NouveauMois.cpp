@@ -92,7 +92,7 @@ void NouveauMois::iniItemList(QVBoxLayout* mainLayout, std::vector<Item>& getLis
     QWidget* widgetItem = new QWidget(this);
     QGridLayout* gridLayout = new QGridLayout(this);
 
-    widgetItem->setStyleSheet("background-color:#fff");
+    // widgetItem->setStyleSheet("background-color:#fff");
 
     mainLayout->addWidget(widgetItem);
     widgetItem->setLayout(gridLayout);

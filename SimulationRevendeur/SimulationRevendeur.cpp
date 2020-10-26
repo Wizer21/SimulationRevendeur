@@ -5,7 +5,6 @@ SimulationRevendeur::SimulationRevendeur(QWidget* parent)
   : QMainWindow(parent)
 {
   ui.setupUi(this);
-  //this->setStyleSheet("background-color:#404040;");
 }
 
 void SimulationRevendeur::setEntreprise(Entreprise& entrepriseGet)
@@ -18,7 +17,8 @@ void SimulationRevendeur::iniInterface()
 {
   srand(time(NULL));
   idSet = 1;
-  mois = 0;
+  jour = 0;
+  mois = 3;
   totalForce = 0;
   totalSalaire = 0;
   salaireOldPos = 0;
@@ -38,11 +38,16 @@ void SimulationRevendeur::iniInterface()
 void SimulationRevendeur::iniMenuBar(QMenuBar* barPointeur)
 {
   QMenu* visualizer = new QMenu(tr("Visualiseur"), this);
+  QMenu* optionMenu = new QMenu(tr("Option"), this);
+  QAction* option = new QAction(tr("Option"), this);
   QAction* open3d = new QAction(tr("Ouvrir Visualiseur 3D"), this);
 
+  barPointeur->addMenu(optionMenu);
   barPointeur->addMenu(visualizer);
+  optionMenu->addAction(option);
   visualizer->addAction(open3d);
 
+  connect(option, SIGNAL(triggered()), this, SLOT(openOption()));
   connect(open3d, SIGNAL(triggered()), this, SLOT(show3DGraph()));
 }
 
@@ -52,7 +57,8 @@ void SimulationRevendeur::ini(QGridLayout* mainLayout)
   QWidget* widgetZone1 = new QWidget(this);
   QGridLayout* layoutMainPartie1 = new QGridLayout(this);
   QLabel* titre = new QLabel(pointeurEntreprise.getName(), this);
-  QPushButton* newMounth = new QPushButton(tr("Achat"), this);
+  date = new QLabel("00/00/20", this);
+  QPushButton* achatButton = new QPushButton(tr("Achat"), this);
 
   //Tab
   QTabWidget* tabNews = new QTabWidget(this);
@@ -76,9 +82,16 @@ void SimulationRevendeur::ini(QGridLayout* mainLayout)
 
   mainLayout->addWidget(widgetZone1, 0, 0);
   widgetZone1->setLayout(layoutMainPartie1);
-  layoutMainPartie1->addWidget(titre, 0, 0);
-  layoutMainPartie1->addWidget(newMounth, 1, 0);
-  layoutMainPartie1->addWidget(tabNews, 0, 1, 2, 1);
+  layoutMainPartie1->addWidget(titre, 0, 0, 1, 2);
+  layoutMainPartie1->addWidget(date, 1, 0, 1, 2);
+  layoutMainPartie1->addWidget(achatButton, 0, 2, 2, 1);
+  layoutMainPartie1->addWidget(tabNews, 2, 0, 2, 3);
+
+  achatButton->setMinimumHeight(achatButton->height() * 2);
+  achatButton->setMinimumWidth(achatButton->height() * 2);
+  achatButton->setMaximumHeight(achatButton->height() * 2);
+  achatButton->setMaximumWidth(achatButton->height() * 2);
+  tabNews->setMinimumHeight(this->height() * 0.5);
 
   // Tab
   scrollNews->setWidget(newWidget);
@@ -86,13 +99,12 @@ void SimulationRevendeur::ini(QGridLayout* mainLayout)
   scrollEntreprise->setWidget(widgetEntreprise);
   widgetEntreprise->setLayout(layoutNewsEntreprise);
 
-  layoutMainPartie1->addWidget(widgetTableau, 2, 0, 2, 2);
+  layoutMainPartie1->addWidget(widgetTableau, 4, 0, 2, 3);
 
   headersList << tr("Nom")
               << tr("Stock");
-
+  date->setFont(QFont("", 20));
   titre->setFont(QFont("", 50));
-
   layoutNews->setAlignment(Qt::AlignTop);
   layoutNews->setContentsMargins(5, 0, 0, 0);
   scrollNews->setWidgetResizable(true);
@@ -145,7 +157,7 @@ void SimulationRevendeur::ini(QGridLayout* mainLayout)
   banque->display(pointeurEntreprise.getBanque());
 
   connect(forceHorraire, SIGNAL(valueChanged(int)), this, SLOT(setDial(int)));
-  connect(newMounth, SIGNAL(clicked()), this, SLOT(newAchat()));
+  connect(achatButton, SIGNAL(clicked()), this, SLOT(newAchat()));
   connect(manageEmploye, SIGNAL(clicked()), this, SLOT(manageEmployeClicked()));
   connect(vente, SIGNAL(clicked()), this, SLOT(venteClicked()));
 }
@@ -197,14 +209,14 @@ void SimulationRevendeur::iniDefaultList()
 
 void SimulationRevendeur::setDefaultGraphValue()
 {
-  lineBanque->append(mois, 3257);
-  lineSalaire->append(mois++, 1890);
+  lineBanque->append(jour, 3257);
+  lineSalaire->append(jour++, 1890);
 
-  lineBanque->append(mois, 7200);
-  lineSalaire->append(mois++, 2030);
+  lineBanque->append(jour, 7200);
+  lineSalaire->append(jour++, 2030);
 
-  lineBanque->append(mois, 4905);
-  lineSalaire->append(mois++, 2924);
+  lineBanque->append(jour, 4905);
+  lineSalaire->append(jour++, 2924);
 
   historiqueBanque.push_back(3257);
   historiqueBanque.push_back(7200);
@@ -265,10 +277,10 @@ void SimulationRevendeur::updateEmptrepriseValue()
 {
   historiqueBanque.push_back(pointeurEntreprise.getBanque());
 
-  lineBanque->append(mois, pointeurEntreprise.getBanque());
-  lineSalaire->append(mois, salaireOldPos);
+  lineBanque->append(jour, pointeurEntreprise.getBanque());
+  lineSalaire->append(jour, salaireOldPos);
 
-  axeHorizontal->setMax(mois * 1.5);
+  axeHorizontal->setMax(jour * 1.5);
 
   if (maxBanque < pointeurEntreprise.getBanque())
   {
@@ -309,7 +321,7 @@ void SimulationRevendeur::manageEmployeClicked()
 
 void SimulationRevendeur::newAchat()
 {
-  mois++;
+  jour++;
   NouveauMois nouveau(this, itemList, &pointeurEntreprise);
   connect(&nouveau, SIGNAL(transfertAchats(QString)), this, SLOT(receiveNewEntreprise(QString)));
   nouveau.exec();
@@ -321,11 +333,12 @@ void SimulationRevendeur::newAchat()
   // Set Graph
   calculForce_SalaireMax();
   updateEmptrepriseValue();
+  setDate();
 }
 
 void SimulationRevendeur::venteClicked()
 {
-  mois++;
+  jour++;
   calculForce_SalaireMax();
   EspaceDeVente* espace = new EspaceDeVente(this, itemList, employeList, villeList, totalForce);
 
@@ -342,6 +355,7 @@ void SimulationRevendeur::venteClicked()
 
   //News
   addNews();
+  setDate();
 }
 
 void SimulationRevendeur::addNews()
@@ -349,14 +363,11 @@ void SimulationRevendeur::addNews()
   int ran1 = StaticRandomizer::randomI(3);
   int ran2 = StaticRandomizer::randomI(3);
 
-  QLabel* line1 = new QLabel(villeList.at(ran1).randomEvent(StaticRandomizer::randomI(11)), this);
-  QLabel* line2 = new QLabel(villeList.at(ran2).randomEvent(StaticRandomizer::randomI(11)), this);
+  news1 = new QLabel(villeList.at(ran1).randomEvent(StaticRandomizer::randomI(11)), this);
+  news2 = new QLabel(villeList.at(ran2).randomEvent(StaticRandomizer::randomI(11)), this);
 
-  line1->setStyleSheet("background-color:#c8e4ff;");
-  line2->setStyleSheet("background-color:#c8e4ff;");
-
-  layoutNews->addWidget(line1);
-  layoutNews->addWidget(line2);
+  layoutNews->addWidget(news1);
+  layoutNews->addWidget(news2);
 }
 
 void SimulationRevendeur::setNewBanque(double value)
@@ -370,6 +381,20 @@ void SimulationRevendeur::show3DGraph()
   open3DView->show();
 }
 
+void SimulationRevendeur::openOption()
+{
+  Options opt(this);
+  connect(&opt, SIGNAL(transferSheet(std::vector<QString>)), this, SLOT(applySheet(std::vector<QString>)));
+  opt.exec();
+}
+
+void SimulationRevendeur::applySheet(std::vector<QString> list)
+{
+  news1->setStyleSheet(list.at(0));
+  news2->setStyleSheet(list.at(0));
+  banque->setStyleSheet(list.at(1));
+}
+
 void SimulationRevendeur::setDial(int value)
 {
   displayForce->setText(QString::number(value) + "%");
@@ -381,7 +406,7 @@ void SimulationRevendeur::setDial(int value)
 
 void SimulationRevendeur::adjustGraph(int oldValue, int newValue)
 {
-  lineSalaire->replace(mois, oldValue, mois, newValue);
+  lineSalaire->replace(jour, oldValue, jour, newValue);
 }
 
 void SimulationRevendeur::receiveNewEntreprise(QString line)
@@ -393,4 +418,14 @@ void SimulationRevendeur::receiveNewEntreprise(QString line)
 void SimulationRevendeur::applyNewSale(double marge, double fraisport)
 {
   receiveNewEntreprise(tr("Votre marge est de ") + QString::number(marge) + tr(" euros, apres déduction de ") + QString::number(fraisport) + tr(" euros de frais de ports, et ") + QString::number(totalSalaire) + tr(" euros de salaire."));
+}
+
+void SimulationRevendeur::setDate()
+{
+
+  while (jour > 30)
+  {
+    mois++;
+  }
+  date->setText(QString::number(jour) + "/" + QString::number(mois) + "/20");
 }

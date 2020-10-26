@@ -16,6 +16,7 @@
 #include "EspaceDeVente.h"
 #include "Ville.h"
 #include <QValueAxis>
+#include "Options.h"
 
 using namespace QtCharts;
 using namespace QtDataVisualization;
@@ -37,6 +38,8 @@ public slots:
   void setDial(int value);
   void receiveNewEntreprise(QString);
   void applyNewSale(double marge, double fraisport);
+  void openOption();
+  void applySheet(std::vector<QString> list);
 
 private:
   void iniInterface();
@@ -51,14 +54,19 @@ private:
   void addNews();
   void adjustGraph(int oldValue, int newValue);
   void setDefaultGraphValue();
+  void setDate();
 
   int idSet;
+  int jour;
   int mois;
   int totalForce;
   int totalSalaire;
   int salaireOldPos;
   int posX;
   double maxBanque;
+  QLabel* date;
+  QLabel* news1;
+  QLabel* news2;
   QChartView* employeGraph;
   QChartView* entrepriseGraph;
   QLCDNumber* banque;

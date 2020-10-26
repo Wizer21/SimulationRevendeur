@@ -109,8 +109,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="IniApp.cpp" />
+    <ClCompile Include="Options.cpp" />
+    <ClCompile Include="SetTheme.cpp" />
     <ClCompile Include="Ville.cpp" />
     <QtMoc Include="IniApp.h" />
+    <QtMoc Include="Options.h" />
+    <ClInclude Include="SetTheme.h" />
     <ClInclude Include="Translate.h" />
     <ClInclude Include="Ville.h" />
     <QtRcc Include="SimulationRevendeur.qrc" />
